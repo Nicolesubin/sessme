@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sessme Seedz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@400;600;700&family=Sour+Gummy:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #fff0f3;
+      --bg-card: rgba(255, 255, 255, 0.94);
+      --accent-soft: #ffccd5;
+      --accent-primary: #ffb3c1;
+      --border-color: #ffccd5;
+      --text-main: #5e5061;
+      --text-muted: #9a889c;
+      --button-text: #ffffff;
+      --card-shadow: 0 10px 25px -5px rgba(255, 179, 193, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      transition: background-color 0.5s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    #effects-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .app-container { width: 100%; max-width: 680px; z-index: 2; position: relative; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 10px 5px;
+    }
+
+    h1.brand-title {
+      font-family: 'Sour Gummy', cursive;
+      font-size: 2.5rem;
+      color: var(--accent-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    .seed-badge {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-btn {
+      background: var(--accent-primary);
+      color: var(--button-text);
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: 'Caveat', cursive;
+      font-size: 1.3rem;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover { transform: scale(1.04); filter: brightness(0.96); }
+
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      transition: border-color 0.4s ease;
+    }
+
+    .card-title {
+      font-family: 'Caveat', cursive;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.85);
+      font-size: 0.95rem;
+      outline: none;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    textarea.input-field { height: 130px; resize: vertical; }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 8px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+    }
+
+    .input-group label { font-size: 0.9rem; font-weight: 600; }
+
+    .input-group input {
+      width: 50px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .action-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 18px;
+      background: var(--accent-primary);
+      color: var(--button-text);
+      font-family: 'Sour Gummy', cursive;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+    .secondary-btn {
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .ai-fab {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 15px var(--accent-primary), 0 0 25px var(--accent-soft);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sour Gummy', cursive;
+      font-size: 1.8rem;
+      color: var(--button-text);
+      z-index: 10;
+      animation: steadyGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes steadyGlow {
+      0% { box-shadow: 0 0 10px var(--accent-primary), 0 0 18px var(--accent-soft); }
+      100% { box-shadow: 0 0 22px var(--accent-primary), 0 0 35px var(--accent-soft); }
+    }
+
+    /* Modals completely hidden by default */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(4px);
+      display: none !important;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex !important;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 28px;
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      border: 2px solid var(--border-color);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+
+    .shop-section { margin-bottom: 20px; }
+    .shop-section h3 { font-family: 'Caveat', cursive; font-size: 1.5rem; margin-bottom: 10px; }
+    .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .shop-item {
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.6);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .shop-item button {
+      border: none;
+      background: var(--accent-primary);
+      color: var(--button-text);
+      padding: 6px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .quiz-card {
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-type-tag {
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .mc-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-primary);
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-top: 6px;
+      cursor: pointer;
+    }
+
+    .ai-chat-box {
+      height: 260px;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 12px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      background: #fafafa;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input {
+      flex: 1; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border-color); outline: none;
+    }
+    .chat-input-row button {
+      padding: 10px 16px; border-radius: 14px; border: none; background: var(--accent-primary); color: var(--button-text); font-weight: bold; cursor: pointer;
+    }
+
+    .grade-badge {
+      background: var(--accent-soft);
+      padding: 12px;
+      border-radius: 16px;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="effects-canvas"></canvas>
+
+  <div class="app-container">
+    <header>
+      <h1 class="brand-title">Sessme Seedz</h1>
+      <div class="header-actions">
+        <div class="seed-badge">
+          Seeds: <span id="seed-count">0</span>
+        </div>
+        <button class="theme-btn" onclick="openShop()">Shop</button>
+      </div>
+    </header>
+
+    <div class="card" id="main-card">
+      <div class="card-title">
+        <span>Study Notes Input</span>
+        <button class="secondary-btn" onclick="loadSampleNotes()">Try Sample</button>
+      </div>
+
+      <input type="text" id="subject-title" class="input-field" placeholder="Topic Name (e.g. US Constitution & Articles)">
+      <textarea id="user-notes" class="input-field" placeholder="Paste study notes or lecture text here..."></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Custom Question Breakdown</div>
+
+      <div class="config-grid">
+        <div class="input-group">
+          <label>Multiple Choice</label>
+          <input type="number" id="q-mc" value="2" min="0">
+        </div>
+        <div class="input-group">
+          <label>Written Answers</label>
+          <input type="number" id="q-written" value="1" min="0">
+        </div>
+        <div class="input-group">
+          <label>One Word Answers</label>
+          <input type="number" id="q-oneword" value="1" min="0">
+        </div>
+        <div class="input-group">
+          <label>Fill in the Blanks</label>
+          <input type="number" id="q-fillblank" value="1" min="0">
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="generateQuizAndEarnSeed()">Generate Smart Quiz (+1 Seed)</button>
+    </div>
+
+    <div class="card" id="output-card" style="display: none;">
+      <div class="card-title" id="output-title">Your Generated Quiz</div>
+      <div id="quiz-results"></div>
+      <button class="action-btn" style="margin-top: 15px;" onclick="gradeQuiz()">Grade My Quiz</button>
+      <div id="grade-container"></div>
+    </div>
+  </div>
+
+  <button class="ai-fab" onclick="openAiChat()">?</button>
+
+  <div class="modal-overlay" id="shop-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-family: 'Sour Gummy'; color: var(--accent-primary);">Seedz Shop</h2>
+        <button class="modal-close" onclick="closeShop()">&times;</button>
+      </div>
+
+      <div class="shop-section">
+        <h3>Free Color Palettes</h3>
+        <div class="shop-grid">
+          <div class="shop-item"><span>Sakura Bloom</span><button onclick="setPalette('sakura')">Equip</button></div>
+          <div class="shop-item"><span>Mint Boba</span><button onclick="setPalette('mint')">Equip</button></div>
+          <div class="shop-item"><span>Lavender Haze</span><button onclick="setPalette('lavender')">Equip</button></div>
+          <div class="shop-item"><span>Peach Sorbet</span><button onclick="setPalette('peach')">Equip</button></div>
+          <div class="shop-item"><span>Honey Butter</span><button onclick="setPalette('honey')">Equip</button></div>
+          <div class="shop-item"><span>Cloud Blue</span><button onclick="setPalette('cloud')">Equip</button></div>
+        </div>
+      </div>
+
+      <div class="shop-section">
+        <h3>Background Effects (Super Cheap!)</h3>
+        <div class="shop-grid">
+          <div class="shop-item">
+            <span>Glitter Outline</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">1 Seed</span>
+            <button id="btn-fx-glitter" onclick="buyItem('glitter', 1)">Buy</button>
+          </div>
+          <div class="shop-item">
+            <span>Aurora Sky</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">2 Seeds</span>
+            <button id="btn-fx-aurora" onclick="buyItem('aurora', 2)">Buy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ai-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-family: 'Sour Gummy'; color: var(--accent-primary);">Ask AI Assistant</h2>
+        <button class="modal-close" onclick="closeAiChat()">&times;</button>
+      </div>
+      <div class="ai-chat-box" id="chat-box">
+        <p style="color: var(--text-muted); font-style: italic;">Hi! Ask me anything about your notes or study topic!</p>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="What is the main point of the first article?">
+        <button onclick="sendAiMessage()">Ask</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let seeds = 0;
+    let inventory = [];
+    let activeFx = null;
+    let currentPalette = 'sakura';
+    let generatedQuizData = [];
+
+    const seedDisplay = document.getElementById('seed-count');
+
+    function initAppState() {
+      seeds = parseInt(localStorage.getItem('sessme_seeds')) || 0;
+      inventory = JSON.parse(localStorage.getItem('sessme_inventory') || '[]');
+      currentPalette = localStorage.getItem('sessme_palette') || 'sakura';
+
+      updateSeeds(0);
+      setPalette(currentPalette);
+      restoreSavedNotes();
+    }
+
+    function updateSeeds(amount) {
+      seeds += amount;
+      localStorage.setItem('sessme_seeds', seeds.toString());
+      seedDisplay.innerText = seeds;
+    }
+
+    function setPalette(theme) {
+      currentPalette = theme;
+      localStorage.setItem('sessme_palette', theme);
+      const root = document.documentElement;
+
+      const colors = {
+        sakura: ['#fff0f3', '#ffccd5', '#ffb3c1', '#ffccd5', '#5e5061', '#ffffff'],
+        mint: ['#f2f8f5', '#d8e2dc', '#b8dbd9', '#d8e2dc', '#3d5a80', '#2b2d42'],
+        lavender: ['#f8f7ff', '#e0aaff', '#c77dff', '#e0aaff', '#4a4e69', '#ffffff'],
+        peach: ['#fff3eb', '#fde2e4', '#ffcad4', '#fde2e4', '#6d597a', '#ffffff'],
+        honey: ['#fdf6e7', '#f7d6a3', '#f4a261', '#f7d6a3', '#4a3b32', '#ffffff'],
+        cloud: ['#f0f4f8', '#bccce0', '#9bb1d0', '#bccce0', '#334155', '#ffffff']
+      }[theme];
+
+      root.style.setProperty('--bg-primary', colors[0]);
+      root.style.setProperty('--accent-soft', colors[1]);
+      root.style.setProperty('--accent-primary', colors[2]);
+      root.style.setProperty('--border-color', colors[3]);
+      root.style.setProperty('--text-main', colors[4]);
+      root.style.setProperty('--button-text', colors[5]);
+    }
+
+    function openShop() { document.getElementById('shop-modal').classList.add('open'); }
+    function closeShop() { document.getElementById('shop-modal').classList.remove('open'); }
+
+    function buyItem(itemId, cost) {
+      if (inventory.includes(itemId)) { applyEffect(itemId); return; }
+      if (seeds >= cost) {
+        updateSeeds(-cost);
+        inventory.push(itemId);
+        localStorage.setItem('sessme_inventory', JSON.stringify(inventory));
+        applyEffect(itemId);
+      } else {
+        alert("Earn seeds by generating quizzes!");
+      }
+    }
+
+    function applyEffect(effect) {
+      document.body.classList.remove('theme-aurora');
+      document.getElementById('main-card').classList.remove('glitter-border');
+      if (activeFx === effect) { activeFx = null; return; }
+      activeFx = effect;
+      if (effect === 'glitter') document.getElementById('main-card').classList.add('glitter-border');
+      if (effect === 'aurora') document.body.classList.add('theme-aurora');
+    }
+
+    function loadSampleNotes() {
+      document.getElementById('subject-title').value = "US Constitution & Articles";
+      document.getElementById('user-notes').value = "The U.S. Constitution establishes the framework of the federal government. Article 1 focuses on the Legislative Branch (Congress) which creates laws. Article 2 outlines the Executive Branch headed by the President. Article 3 establishes the Judicial Branch and Supreme Court. Shays' Rebellion in 1786 showed the weakness of the Articles of Confederation, leading to the Constitutional Convention.";
+      saveNotesLocally();
+    }
+
+    function saveNotesLocally() {
+      localStorage.setItem('sessme_last_subject', document.getElementById('subject-title').value);
+      localStorage.setItem('sessme_last_notes', document.getElementById('user-notes').value);
+    }
+
+    function restoreSavedNotes() {
+      const savedSubject = localStorage.getItem('sessme_last_subject');
+      const savedNotes = localStorage.getItem('sessme_last_notes');
+      if (savedSubject) document.getElementById('subject-title').value = savedSubject;
+      if (savedNotes) document.getElementById('user-notes').value = savedNotes;
+    }
+
+    function extractSmartConcepts(text) {
+      const sentences = text.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 15);
+      const words = text.match(/\b[A-Za-z]{4,}\b/g) || [];
+      const freq = {};
+      words.forEach(w => { const lw = w.toLowerCase(); freq[lw] = (freq[lw] || 0) + 1; });
+      const topWords = Object.keys(freq).sort((a,b) => freq[b] - freq[a]).slice(0, 8);
+      return { sentences, topWords };
+    }
+
+    function generateQuizAndEarnSeed() {
+      let notes = document.getElementById('user-notes').value.trim();
+      let subject = document.getElementById('subject-title').value.trim() || "Study Topic";
+
+      if (!notes) { alert("Please input study notes first!"); return; }
+
+      updateSeeds(1);
+      const outputCard = document.getElementById('output-card');
+      const resultsDiv = document.getElementById('quiz-results');
+      outputCard.style.display = 'block';
+      document.getElementById('output-title').innerText = `${subject} - Practice Quiz`;
+
+      const { sentences, topWords } = extractSmartConcepts(notes);
+
+      const mcCount = parseInt(document.getElementById('q-mc').value) || 0;
+      const writtenCount = parseInt(document.getElementById('q-written').value) || 0;
+      const onewordCount = parseInt(document.getElementById('q-oneword').value) || 0;
+      const fillblankCount = parseInt(document.getElementById('q-fillblank').value) || 0;
+
+      let html = `<div style="padding: 6px; margin-bottom: 12px; font-weight: bold; color: var(--accent-primary);">+1 Seed Earned! Here are your customized questions:</div>`;
+      generatedQuizData = [];
+      let qIndex = 1;
+
+      for (let i = 0; i < mcCount; i++) {
+        const sentence = sentences[i % sentences.length] || `The main focus of ${subject} is central to the study text.`;
+        const correctKeyword = topWords[i % topWords.length] || "Key Principle";
+        const distractor1 = topWords[(i + 1) % topWords.length] || "Secondary Option";
+        const distractor2 = topWords[(i + 2) % topWords.length] || "Alternative Concept";
+
+        html += `
+          <div class="quiz-card">
+            <div class="quiz-type-tag">Multiple Choice</div>
+            <p><strong>Q${qIndex}:</strong> Based on your notes: "${sentence.slice(0, 90)}...", what is the core term referenced?</p>
+            <div style="margin-top: 8px;">
+              <label class="mc-option"><input type="radio" name="q_${qIndex}" value="A"> A) ${correctKeyword.toUpperCase()}</label>
+              <label class="mc-option"><input type="radio" name="q_${qIndex}" value="B"> B) ${distractor1.toUpperCase()}</label>
+              <label class="mc-option"><input type="radio" name="q_${qIndex}" value="C"> C) ${distractor2.toUpperCase()}</label>
+            </div>
+          </div>`;
+        generatedQuizData.push({ id: qIndex, answer: "A" });
+        qIndex++;
+      }
+
+      for (let i = 0; i < writtenCount; i++) {
+        const focusWord = topWords[i % topWords.length] || "the main topic";
+        html += `
+          <div class="quiz-card">
+            <div class="quiz-type-tag">Written Explanation</div>
+            <p><strong>Q${qIndex}:</strong> What was the main focus or purpose of <strong>${focusWord.toUpperCase()}</strong> according to your notes?</p>
+            <input type="text" id="q_${qIndex}" class="input-field" style="margin-top: 8px;" placeholder="Write explanation here...">
+          </div>`;
+        generatedQuizData.push({ id: qIndex, key: focusWord });
+        qIndex++;
+      }
+
+      for (let i = 0; i < onewordCount; i++) {
+        const keyword = topWords[(i + 2) % topWords.length] || "Constitution";
+        html += `
+          <div class="quiz-card">
+            <div class="quiz-type-tag">One Word Answer</div>
+            <p><strong>Q${qIndex}:</strong> Name the key term associated with this statement: "${(sentences[i] || notes).slice(0, 70)}..."</p>
+            <input type="text" id="q_${qIndex}" class="input-field" style="margin-top: 8px;" placeholder="One word answer...">
+          </div>`;
+        generatedQuizData.push({ id: qIndex, key: keyword });
+        qIndex++;
+      }
+
+      for (let i = 0; i < fillblankCount; i++) {
+        const targetSentence = sentences[i % sentences.length] || notes;
+        const words = targetSentence.split(' ');
+        const blankWord = words.find(w => w.length > 4) || "Legislative";
+        const masked = targetSentence.replace(blankWord, "___________");
+
+        html += `
+          <div class="quiz-card">
+            <div class="quiz-type-tag">Fill in the Blank</div>
+            <p><strong>Q${qIndex}:</strong> Fill in the missing word:</p>
+            <p style="margin-top:6px; font-style: italic;">"${masked}"</p>
+            <input type="text" id="q_${qIndex}" class="input-field" style="margin-top: 8px;" placeholder="Fill in word...">
+          </div>`;
+        generatedQuizData.push({ id: qIndex, key: blankWord.toLowerCase().replace(/[^a-z]/g, '') });
+        qIndex++;
+      }
+
+      resultsDiv.innerHTML = html;
+      document.getElementById('grade-container').innerHTML = '';
+      outputCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function gradeQuiz() {
+      let score = 0;
+      let total = generatedQuizData.length;
+
+      generatedQuizData.forEach(item => {
+        if (item.answer) {
+          const selected = document.querySelector(`input[name="q_${item.id}"]:checked`);
+          if (selected && selected.value === item.answer) score++;
+        } else if (item.key) {
+          const val = (document.getElementById(`q_${item.id}`)?.value || '').toLowerCase();
+          if (val.includes(item.key.toLowerCase())) score++;
+        }
+      });
+
+      const percent = total > 0 ? Math.round((score / total) * 100) : 100;
+      document.getElementById('grade-container').innerHTML = `
+        <div class="grade-badge">
+          Score: ${score} / ${total} (${percent}%)
+        </div>
+      `;
+    }
+
+    function openAiChat() { document.getElementById('ai-modal').classList.add('open'); }
+    function closeAiChat() { document.getElementById('ai-modal').classList.remove('open'); }
+
+    function sendAiMessage() {
+      const input = document.getElementById('chat-input');
+      const chatBox = document.getElementById('chat-box');
+      const q = input.value.trim();
+      const notes = document.getElementById('user-notes').value.trim();
+
+      if (!q) return;
+
+      chatBox.innerHTML += `<p style="margin-bottom: 8px;"><strong>You:</strong> ${q}</p>`;
+      input.value = '';
+
+      setTimeout(() => {
+        let response = "";
+        const lq = q.toLowerCase();
+
+        if (notes.length > 10) {
+          const sentences = notes.split(/(?<=[.?!])\s+/);
+          const matched = sentences.filter(s => lq.split(' ').some(w => w.length > 3 && s.toLowerCase().includes(w)));
+
+          if (matched.length > 0) {
+            response = `Based on your notes: "${matched[0]}"`;
+          } else {
+            response = `Here is a summary based on your notes: ${notes.slice(0, 180)}...`;
+          }
+        } else {
+          response = "Please paste your study notes in the main box so I can read them and answer your questions!";
+        }
+
+        chatBox.innerHTML += `<p style="background: var(--bg-primary); padding: 10px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--border-color);"><strong>AI Assistant:</strong> ${response}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 300);
+    }
+
+    window.onload = initAppState;
+  </script>
+</body>
+</html>
